@@ -1,0 +1,57 @@
+[
+    {
+        "entered": "Иван",
+        "expected": "Иван",
+        "created" : true
+    },
+    {
+        "entered": "Smith",
+        "expected": "Smith",
+        "created" : true
+    },
+    {
+        "entered": "%@&#*!().,",
+        "expected": "%@&#*!().,",
+        "created" : true
+    },
+    {
+        "entered": "12345",
+        "expected": "12345",
+        "created" : true
+    },
+    {
+        "entered": "会意會意",
+        "expected": "会意會意",
+        "created" : true
+    },
+        {
+        "entered": "J",
+        "expected": "J",
+        "created" : true
+    },
+        {
+        "entered": "Phono-semantic compounds (形声; 形聲; xíngshēng) are composed of at least one semantic component and one phonetic component.[33] They may be formed by one of several methods, often by adding a phonetic component to disambiguate a loangraph, or by adding a semantic component to represent a specific extension of a character's meaning.[34] Examples of phono-semantic compounds include 河 (hé; 'river'), 湖 (hú; 'lake'), 流 (liú; 'stream'), 沖 (chōng; 'surge'), and 滑 (huá; 'slippery'). Each of these characters have three short strokes on their left-hand side: 氵, a simplified combining form of ⽔ 'WATER'. This component serves a semantic function in each example, indicating the character has some meaning related to water. The remainder of each character is its phonetic component: 湖 (hú) is pronounced identically to 胡 (hú) in Standard Chinese, 河 (hé) is pronounced similarly to 可 (kě), and 沖 (chōng) is pronounced similarly to 中 (zhōng)",
+        "expected": "Phono-semantic compounds (形声; 形聲; xíngshēng) are composed of at least one semantic component and one phonetic component.[33] They may be formed by one of several methods, often by adding a phonetic component to disambiguate a loangraph, or by adding a semantic component to represent a specific extension of a character's meaning.[34] Examples of phono-semantic compounds include 河 (hé; 'river'), 湖 (hú; 'lake'), 流 (liú; 'stream'), 沖 (chōng; 'surge'), and 滑 (huá; 'slippery'). Each of these characters have three short strokes on their left-hand side: 氵, a simplified combining form of ⽔ 'WATER'. This component serves a semantic function in each example, indicating the character has some meaning related to water. The remainder of each character is its phonetic component: 湖 (hú) is pronounced identically to 胡 (hú) in Standard Chinese, 河 (hé) is pronounced similarly to 可 (kě), and 沖 (chōng) is pronounced similarly to 中 (zhōng)",
+        "created" : true
+    },
+        {
+        "entered": "https://playwright.dev/python/docs/next/api/class-browsercontext",
+        "expected": "https://playwright.dev/python/docs/next/api/class-browsercontext",
+        "created" : true
+    },
+        {
+        "entered": "    пробелы",
+        "expected": "пробелы",
+        "created" : true
+    },
+    {
+        "entered": "    ",
+        "expected": "    ",
+        "created" : false
+    },
+        {
+        "entered": "",
+        "expected": "",
+        "created" : false
+    }
+]
