@@ -6,95 +6,6 @@ import json
 input_text_first = 'Blablabla'
 input_text_second = '11111111'
 
-'''def test_check_add_todo(page_with_url):
-    url, page_with_url = page_with_url
-
-    #check_the_toggle_checkbox default parameters
-    toggle_all_checkbox = main.locator('#toggle-all')
-    expect(toggle_all_checkbox).to_have_role("checkbox")
-    expect(toggle_all_checkbox).to_have_class("toggle-all")
-    expect(toggle_all_checkbox).not_to_be_checked()
-
-    # check the label of all
-    toggle_label = page_with_url.get_by_label("Mark all as complete")
-
-    #check list with todos
-    todo_list = main.locator('ul')
-    expect(todo_list).to_have_class("todo-list")
-    expect(todo_list).to_have_role("list")
-
-    todo_list_item = todo_list.locator('li')
-    expect(todo_list_item).to_have_attribute("data-testid", "todo-item")
-
-    list_item_div = todo_list_item.locator('div')
-    expect(list_item_div).to_have_count(1)
-    expect(list_item_div).to_have_class('view')
-
-    toggle_single_checkbox = list_item_div.locator('input')
-    expect(toggle_single_checkbox).to_have_count(1)
-    expect(toggle_single_checkbox).to_have_role("checkbox")
-    expect(toggle_single_checkbox).to_have_class("toggle")
-    expect(toggle_single_checkbox).not_to_be_checked()
-    expect(toggle_single_checkbox).to_have_attribute("aria-label", "Toggle Todo")
-
-    toggle_single_item_label = list_item_div.locator('label')
-    expect(toggle_single_item_label).to_have_count(1)
-    expect(toggle_single_item_label).to_have_attribute('data-testid', 'todo-title')
-    expect(toggle_single_item_label).to_have_text(input_text_first)
-
-    # check delete item button cant be found
-    delete_button = page_with_url.locator('.destroy')
-    expect(delete_button).not_to_be_visible()
-    expect(delete_button).to_be_enabled()
-
-    #check delete_button attributes
-    expect(delete_button).to_have_class("destroy")
-    expect(delete_button).to_have_role("button")
-    expect(delete_button).to_have_class("destroy")
-    expect(delete_button).to_have_attribute("aria-label", "Delete")
-
-    #check visibility of delete item button when hover
-    todo_list.hover()
-    expect(delete_button).to_be_visible()
-    expect(delete_button).to_be_enabled()
-
-    #check edit input
-    edit_input = todo_list_item.locator('input.edit')
-    expect(edit_input).to_have_class("edit")
-    expect(edit_input).to_have_attribute("aria-label", "Edit")
-    expect(edit_input).to_have_value(input_text_first)
-
-    expect(edit_input).not_to_be_visible()
-    expect(edit_input).to_be_enabled()
-
-    #check edit input enabling
-    toggle_single_item_label.dblclick()
-    expect(edit_input).to_be_visible()
-
-    #check editing mode
-    expect(list_item_div).not_to_be_visible()
-    expect(todo_list_item).to_have_class('editing')
-    edit_input.fill('input_text_second')
-    expect(edit_input).to_have_value('input_text_second')
-
-    #check return to previous value by pressing escape
-    edit_input.press('Escape')
-    expect(list_item_div).to_be_visible()
-    expect(todo_list_item).not_to_have_class('editing')
-    expect(toggle_single_item_label).to_have_text(input_text_first)
-    expect(edit_input).not_to_be_visible()
-
-    # Check that changes was applied
-    toggle_single_item_label.dblclick()
-    edit_input.fill('111111')
-    edit_input.press('Enter')
-    expect(edit_input).not_to_be_visible()
-    expect(list_item_div).to_be_visible()
-    expect(todo_list_item).not_to_have_class('editing')
-    expect(toggle_single_item_label).to_have_text('111111')
-'''
-
-
 def test_input_area(open_page_wout_cookies):
     url, page = open_page_wout_cookies
 
@@ -117,21 +28,23 @@ def test_input_area(open_page_wout_cookies):
         expect(label).to_have_text(text['expected'])
 
         todo_item.hover()
-        delete_button = page.locator('.destroy')
+        delete_button = todo_item.locator('.destroy')
         delete_button.click()
 
 
-def single_add_todo(page, text):
+def add_todo(page, name):
     new_todo_input = page.get_by_placeholder('What needs to be done?')
-    new_todo_input.fill(text)
+    new_todo_input.fill(name)
 
     new_todo_input.press('Enter')
 
+    assert get_todo_by_inner_text(page, name).count() == 1
+    #TODO здесь бы желатель await, чтобы быть увренным, что он создался
 
 def test_completion_checkbox(open_page_wout_cookies):
     url, page = open_page_wout_cookies
 
-    single_add_todo(page, "complete")
+    add_todo(page, "complete")
 
     checkbox = page.get_by_label('Toggle Todo')
     single_item = page.get_by_test_id('todo-item')
@@ -169,26 +82,78 @@ def test_footer(open_page_with_cookies):
     url, page = open_page_with_cookies
 
     filters = page.locator('.filters')
-    all_switcher = filters.get_by_role('link').filter(has_text="All")
-    expect(all_switcher).to_have_class("selected")
-    expect(page.get_by_test_id('todo-item')).to_have_count(4)
 
-    active = filters.get_by_role('link').filter(has_text="Active")
+    check_tab(filters, page, 'Active', True, 2)
+    check_tab(filters, page, 'All', False, 4)
+    check_tab(filters, page, 'Completed', True, 2)
+
+def check_tab(filters, page, tab_name,isUrl, count):
+    active = filters.get_by_role('link').filter(has_text=tab_name)
     active.click()
     expect(active).to_have_class("selected")
-    expect(page.get_by_test_id('todo-item')).to_have_count(2)
-    expect(page).to_have_url(re.compile(".*active"))
+    expect(page.get_by_test_id('todo-item')).to_have_count(count)
+    url = "https://demo.playwright.dev/todomvc/#/"
+    if isUrl:
+        url = f'https://demo.playwright.dev/todomvc/#/{tab_name.lower()}'
+    expect(page).to_have_url(url)
 
-    completed = filters.get_by_role('link').filter(has_text="Completed")
-    completed.click()
-    expect(completed).to_have_class("selected")
-    expect(page.get_by_test_id('todo-item')).to_have_count(2)
-    expect(page).to_have_url(re.compile(".*completed"))
+def test_todo_active_count(open_page_with_cookies, todo_name='New_active1', active_before='2',active_after='3'):
+    url, page = open_page_with_cookies
+    todo_count = page.get_by_test_id('todo-count')
+    expect(todo_count).to_have_class('todo-count')
+    expect(todo_count.locator('strong')).to_have_text(active_before, use_inner_text=True)
+    expect(todo_count).to_have_text(f"{active_before} items left", use_inner_text=True)
 
+    add_todo(page, todo_name)
+    expect(todo_count.locator('strong')).to_have_text(active_after, use_inner_text=True)
+
+    remove_todo(page, todo_name)
+    expect(todo_count.locator('strong')).to_have_text(active_before, use_inner_text=True)
+
+def test_editing_todo_name(open_page_wout_cookies, default_name="Default", edited_name="Edited"):
+    url, page = open_page_wout_cookies
+
+    add_todo(page, default_name)
+
+    todo_item = get_todo_by_inner_text(page, default_name)
+    todo_item.dblclick()
+
+    edit_input = todo_item.get_by_role('input', name=default_name)
+    expect(edit_input).to_have_class("edit")
+    expect(edit_input).to_have_attribute("aria-label", "Edit")
+    expect(edit_input).not_to_be_enabled()
+
+    expect(todo_item).to_have_class("Editing")
+    expect(edit_input).to_have_value(default_name)
+    expect(edit_input).to_be_enabled()
+
+    edit_input.fill(edited_name)
+    expect(edit_input).to_have_value(edited_name)
+
+    todo_item.press('Escape')
+    expect(edit_input).not_to_have_class("edit")
+    expect(edit_input).not_to_be_enabled()
+    expect(todo_item.get_by_role("label")).to_have_value(default_name)
+
+    todo_item.dblclick()
+    edit_input.fill(default_name)
+    todo_item.press("Enter")
+    expect(todo_item.get_by_role("label")).to_have_text(edited_name)
+def get_todo_by_inner_text(page, name):
+    return page.get_by_test_id('todo-item').filter(has=page.get_by_test_id('todo-title')).filter(has_text=name)
+
+def remove_todo(page, name):
+    todo_item = get_todo_by_inner_text(page, name)
+
+    expect(todo_item).to_have_count(1)
+
+    todo_item.hover()
+    delete_button = todo_item.locator('.destroy')
+    delete_button.click()
 
 # test adding a single element
 # TODO Rewrite using Playwright locators recommendations
-def test_add_todo(open_page_wout_cookies):
+''' def test_add_todo(open_page_wout_cookies):
     url, page = open_page_wout_cookies
 
     new_todo_input = page.locator('.new-todo')
@@ -218,7 +183,7 @@ def test_add_todo(open_page_wout_cookies):
     toggle_single_item_label = main.locator('ul div label')
     expect(toggle_single_item_label).to_have_count(1)
     expect(toggle_single_item_label).to_have_attribute('data-testid', 'todo-title')
-    expect(toggle_single_item_label).to_have_text(input_text_first)
+    expect(toggle_single_item_label).to_have_text(input_text_first) '''
 
 
 def check_default_state_completion_toggle_checkbox(main):
@@ -246,46 +211,3 @@ def check_toggle_all_button(main):
     expect(toggle_all_checkbox).to_have_role("checkbox")
     expect(toggle_all_checkbox).to_have_class("toggle-all")
     expect(toggle_all_checkbox).not_to_be_checked()
-
-
-'''def test_check_no_elements_state(page_with_url):
-    url, page_with_url = page_with_url
-    todoapp = page_with_url.locator('body section')
-    expect(todoapp).to_have_count(1)
-    expect(todoapp).to_have_class('todoapp')
-
-    todoapp_div = todoapp.locator("div")
-    expect(todoapp).to_have_count(1)
-
-    header = todoapp_div.locator('header')
-    expect(header).to_have_count(1)
-    expect(header).to_have_class('header')
-
-    h1 = header.locator('h1')
-    expect(h1).to_have_text('todos')
-    expect(h1).to_have_count(1)
-
-    input_new_todo = header.locator("input")
-    expect(input_new_todo).to_have_count(1)
-    expect(input_new_todo).to_have_class('new-todo')
-    expect(input_new_todo).to_have_attribute("placeholder", "What needs to be done?")
-    expect(input_new_todo).to_be_visible()
-
-    todo_main = todoapp_div.locator('main')
-    expect(todo_main).to_have_count(0)
-
-    todo_footer = todoapp_div.locator('footer')
-    expect(todo_footer).to_have_count(0)
-
-    footer = page_with_url.locator('body footer')
-    expect(footer).to_have_count(1)
-    expect(footer).to_have_class('info')
-    expect(footer.locator('p')).to_have_text(
-        ["Double-click to edit a todo", 'Created by Remo H. Jansen', 'Part of TodoMVC'])
-    expect(footer.locator('p:first-child')).to_contain_text("Double-click to edit a todo")
-    expect(footer.locator('p > a')).to_have_text(['Remo H. Jansen', 'TodoMVC'])
-    first_link = footer.locator('p:nth-child(2) > a')
-    expect(first_link).to_have_attribute('href', 'http://github.com/remojansen/')
-    second_link = footer.locator('p:nth-child(3) > a')
-    expect(second_link).to_have_attribute('href', 'http://todomvc.com')
-'''
