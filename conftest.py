@@ -1,30 +1,26 @@
 import pytest
-from playwright.sync_api import sync_playwright
+import pytest_asyncio
+from playwright.async_api import async_playwright, Playwright
+import asyncio
 
+URL = 'https://demo.playwright.dev/todomvc/#/'
+SCRIPT_PATH = "./preload.js"
+HEADLESS = False
+SLOWMO_SEC = 1000
 
-@pytest.fixture(scope='session')
-def open_page_wout_cookies():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        page = browser.new_page()
-        page.context.storage_state().clear()
-        page.goto('https://demo.playwright.dev/todomvc/#/')
-        page.wait_for_load_state("domcontentloaded")
-        url = page.url
-        yield url, page
-        browser.close()
-
-
-@pytest.fixture()
-def open_page_with_cookies():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        page = browser.new_page()
-        page.context.storage_state().clear()
-        page.add_init_script(path="./preload.js")
-        page.goto('https://demo.playwright.dev/todomvc/#/')
-        page.wait_for_load_state("domcontentloaded")
-        url = page.url
-        yield url, page
-        browser.close()
-
+@pytest_asyncio.fixture
+async def open_page(request):
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=HEADLESS, slow_mo=SLOWMO_SEC)
+        context = await browser.new_context()
+        page = await context.new_page()
+        try:
+            await page.context.clear_cookies()
+            if request:
+                await page.add_init_script(SCRIPT_PATH)
+            await page.goto(URL)
+            yield page.url, page
+        finally:
+            await page.close()
+            await context.close()
+            await browser.close()

@@ -2,11 +2,11 @@ from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
 
-def save_page_html(page_with_url, file_path: str):
+def save_page_html(url, file_path: str):
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.goto(page_with_url)
+        page.goto(url)
 
         # Получаем HTML-код страницы
         html_content = page.content()
